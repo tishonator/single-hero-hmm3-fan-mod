@@ -1,0 +1,36 @@
+{
+	"name" : "Single Hero: A HoMM3 Fan Mod",
+	"description" : "One hero per player, like the Single Hero mode of Olden Era. Nobody can hire or free a second hero, and a player whose hero dies, retreats or surrenders is defeated, even with towns left. Works on hand-made scenarios and random maps.",
+	"author" : "Tihomir Ivanov (TishGamer)",
+	"contact" : "https://github.com/tishonator/single-hero-hmm3-fan-mod",
+	"version" : "0.1.0",
+	"modType" : "Interface",
+	"language" : "english",
+
+	"compatibility" : {
+		"min" : "1.7.0"
+	},
+
+	"changelog" : {
+		"0.1.0" : [
+			"One hero per player: the tavern and prisons cannot give anyone a second hero (also for the computer players)",
+			"Losing the hero (killed, retreated or surrendered) means defeat, even with towns left",
+			"The only hero cannot be dismissed",
+			"Works on hand-made scenarios and random maps: at the start every player keeps one hero (the hero a map objective needs, else the chosen starting hero, else the most experienced); a player with towns but no hero gets one in the main town",
+			"Own main menu: New Game, Multiplayer, Load Game, Credits, Quit"
+		]
+	},
+
+	// The rules of the mode. See config/gameConfig.json of VCMI for all settings.
+	"settings" : {
+		"heroes" : {
+			"perPlayerOnMapCap" : 1,
+			"perPlayerTotalCap" : 1,
+			"defeatOnHeroLoss" : true
+		}
+	},
+
+	"translations" : [
+		"config/singlehero/english.json"
+	]
+}

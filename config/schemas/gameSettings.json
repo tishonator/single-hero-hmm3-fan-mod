@@ -49,6 +49,7 @@
 				"perPlayerOnMapCap"  :            { "type" : "number" },
 				"perPlayerTotalCap"  :            { "type" : "number" },
 				"retreatOnWinWithoutTroops" :     { "type" : "boolean" },
+				"defeatOnHeroLoss" :              { "type" : "boolean" },
 				"startingStackChances" :          { "type" : "array" },
 				"backpackSize" :                  { "type" : "number" },
 				"tavernInvite" :                  { "type" : "boolean" },

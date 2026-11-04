@@ -6,17 +6,24 @@ on:
       - beta
       - master
       - develop
+      - main
+    tags:
+      - 'v*'        # Single Hero: a version tag (e.g. v0.1.0) builds all platforms and drafts a GitHub Release
   pull_request:
   workflow_dispatch:
 
+# Single Hero: one build per commit - pushing a release tag for a commit cancels its branch build
+# (both would build the same code and compete for the few macOS runners)
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
   build:
     name: Build (${{ matrix.platform }})
     strategy:
+      # Single Hero: one failing platform must not cancel the others
+      fail-fast: false
       matrix:
         include:
           - platform: mac-intel
@@ -699,7 +706,8 @@ jobs:
 
   windows-installer:
     needs: build
-    if: ${{ needs.build.result == 'success' }}
+    # Single Hero: also run when an unrelated platform failed (missing Windows packages make this job fail on its own)
+    if: ${{ !cancelled() }}
     name: Create Windows Installer (${{ matrix.arch }})
     strategy:
       matrix:
@@ -873,3 +881,57 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 CI/final_summary.py
+
+  # Single Hero: a version tag (e.g. v0.1.0) publishes a GitHub Release with the packages of every platform that built
+  release:
+    name: GitHub Release
+    needs: [build, windows-installer]
+    if: ${{ !cancelled() && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          path: artifacts
+          pattern: SingleHero-*
+
+      - name: Collect release files
+        run: |
+          mkdir -p release
+          # installers and packages only: no debug symbols, Android bundles or Lobby server packages
+          find artifacts -type f \( -name '*.exe' -o -name '*.zip' -o -name '*.dmg' -o -name '*.AppImage' -o -name '*.apk' -o -name '*.ipa' \) \
+            ! -path '*symbols*' ! -path '*-aab/*' ! -path '*lobby*' -exec cp {} release/ \;
+          ls -la release
+          # never publish a release without downloads
+          if [ -z "$(ls -A release)" ]; then echo "::error::No platform built successfully - release not published"; exit 1; fi
+
+      - name: Write release notes
+        run: |
+          cat > notes.md <<'NOTES'
+          **Single Hero: A HoMM3 Fan Mod**: one hero per player - if your hero falls, you lose. Inspired by the Single Hero mode of Olden Era.
+
+          ### Downloads
+          | System | File |
+          | --- | --- |
+          | Windows | `*-windows-*.exe` (installer) or `*-msvc-*.zip` (portable) |
+          | macOS | `*.dmg` (Apple Silicon `mac-arm`, Intel `mac-intel`) |
+          | Linux | `*.AppImage` |
+          | Android | `*.apk` |
+          | iOS / iPadOS | `*.ipa` (sideload) |
+
+          **You need your own copy of Heroes of Might and Magic III (Complete or Shadow of Death).** No original game files are included.
+          Full install guide: https://github.com/tishonator/single-hero-hmm3-fan-mod#installation
+
+          Enjoying the mod? Subscribe to **TishGamer** on YouTube: https://www.youtube.com/@TishGamer
+          NOTES
+          sed -i 's/^          //' notes.md
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Single Hero ${{ github.ref_name }}
+          body_path: notes.md
+          files: release/*
+          fail_on_unmatched_files: false

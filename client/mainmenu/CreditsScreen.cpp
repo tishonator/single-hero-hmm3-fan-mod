@@ -79,6 +79,14 @@ CreditsScreen::CreditsScreen(Rect rect)
 	});
 
 	text = "{- " + LIBRARY->generaltexth->translate("vcmi.credits.vcmi") + " -}\r\n" + contributorsText + "\r\n\r\n{" + LIBRARY->generaltexth->translate("vcmi.credits.website") + ":}\r\nhttps://vcmi.eu\r\n\r\n\r\n\r\n\r\n{- " + LIBRARY->generaltexth->translate("vcmi.credits.heroes") + " -}\r\n\r\n\r\n" + text;
+	// Single Hero: the mod's own credits come first (text from the mod's translation file)
+	const std::string singleHeroCreditsID = "singlehero.credits.text";
+	std::string singleHeroCredits = LIBRARY->generaltexth->translate(singleHeroCreditsID);
+	if(singleHeroCredits != singleHeroCreditsID && !singleHeroCredits.empty())
+	{
+		boost::replace_all(singleHeroCredits, "\n", "\r\n");
+		text = singleHeroCredits + "\r\n\r\n\r\n\r\n\r\n" + text;
+	}
 	credits = std::make_shared<CMultiLineLabel>(Rect(pos.w - 350, 0, 350, 600), FONT_CREDITS, ETextAlignment::CENTER, Colors::WHITE, text);
 	credits->scrollTextTo(-600); // move all text below the screen
 }

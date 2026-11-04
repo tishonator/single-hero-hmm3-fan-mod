@@ -219,6 +219,7 @@ private:
 	void initPlayerStates();
 	void placeStartingHeroes(vstd::RNG & randomGenerator);
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
+	void initSingleHeroes(vstd::RNG & randomGenerator); // Single Hero: exactly one hero per player at game start
 	void removeHeroPlaceholders();
 	void initDifficulty();
 	void initHeroes(IGameRandomizer & gameRandomizer);

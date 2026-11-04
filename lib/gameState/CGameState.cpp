@@ -222,6 +222,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	initRandomFactionsForPlayers(randomGenerator);
 	randomizeMapObjects(gameRandomizer);
 	placeStartingHeroes(randomGenerator);
+	initSingleHeroes(randomGenerator);
 	initOwnedObjects();
 	initDifficulty();
 	initHeroes(gameRandomizer);
@@ -606,6 +607,102 @@ void CGameState::placeStartingHeroes(vstd::RNG & randomGenerator)
 				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
+		}
+	}
+}
+
+void CGameState::initSingleHeroes(vstd::RNG & randomGenerator)
+{
+	// Single Hero: hand-made maps often give a player several heroes, or only towns.
+	// Leave every player with exactly one hero before the game starts.
+	if(!getSettings().getBoolean(EGameSettings::HEROES_DEFEAT_ON_HERO_LOSS) || map->battleOnly)
+		return;
+
+	logGlobal->debug("\tSingle Hero: one hero per player");
+
+	// Heroes named by the map's victory or loss conditions (e.g. "Lose hero X", "Defeat hero Y") must stay:
+	// the objectives look them up by position or name when the game starts
+	std::vector<int3> objectivePositions;
+	std::set<std::string> objectiveNames;
+	for(const TriggeredEvent & event : map->triggeredEvents)
+	{
+		event.trigger.morph([&](const EventCondition & cond) -> EventExpression::Variant
+		{
+			if(map->isInTheMap(cond.position))
+				objectivePositions.push_back(cond.position);
+			if(!cond.objectInstanceName.empty())
+				objectiveNames.insert(cond.objectInstanceName);
+			return cond;
+		});
+	}
+
+	auto isObjectiveHero = [&](const CGHeroInstance * hero)
+	{
+		if(vstd::contains(objectiveNames, hero->instanceName))
+			return true;
+		for(const int3 & pos : objectivePositions)
+			if(hero->anchorPos() == pos || hero->visitablePos() == pos || hero->coveringAt(pos))
+				return true;
+		return false;
+	};
+
+	for(const auto & [color, settings] : scenarioOps->playerInfos)
+	{
+		if(!color.isValidPlayer())
+			continue;
+
+		std::vector<CGHeroInstance *> heroes;
+		for(const auto & heroID : map->getHeroesOnMap())
+		{
+			auto * hero = getHero(heroID);
+			if(hero && hero->ID == Obj::HERO && hero->getOwner() == color)
+				heroes.push_back(hero);
+		}
+
+		if(heroes.empty())
+		{
+			// towns but no hero: give a starting hero in the main town (or the first town)
+			const auto & playerInfo = map->players[color.getNum()];
+			std::optional<int3> townPos;
+			for(const auto & townID : map->getAllTowns())
+			{
+				const auto * town = getTown(townID);
+				if(!town || town->getOwner() != color)
+					continue;
+				if(!townPos || (playerInfo.hasMainTown && town->anchorPos() == playerInfo.posOfMainTown))
+					townPos = town->anchorPos();
+			}
+			if(townPos)
+			{
+				HeroTypeID heroTypeId = pickNextHeroType(randomGenerator, color);
+				logGlobal->debug("Single Hero: player %s has no hero, placing hero type %d", color.toString(), heroTypeId.getNum());
+				placeStartingHero(color, heroTypeId, *townPos);
+			}
+			continue;
+		}
+
+		if(heroes.size() == 1)
+			continue;
+
+		// keep the most important hero: named by an objective, then the hero chosen for this player, then the most experienced
+		auto rank = [&](const CGHeroInstance * hero)
+		{
+			return std::make_tuple(isObjectiveHero(hero), hero->getHeroTypeID() == settings.hero, std::max<TExpType>(hero->exp, 0));
+		};
+		std::stable_sort(heroes.begin(), heroes.end(), [&](const CGHeroInstance * a, const CGHeroInstance * b)
+		{
+			return rank(a) > rank(b);
+		});
+
+		for(size_t i = 1; i < heroes.size(); ++i)
+		{
+			if(isObjectiveHero(heroes[i]))
+			{
+				logGlobal->warn("Single Hero: player %s keeps hero %s as well, a map objective needs it", color.toString(), heroes[i]->instanceName);
+				continue;
+			}
+			logGlobal->debug("Single Hero: removing extra hero %s of player %s", heroes[i]->instanceName, color.toString());
+			map->eraseObject(heroes[i]->id);
 		}
 	}
 }
@@ -1240,6 +1337,14 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & p
 			if (event.effect.type == EventEffect::DEFEAT)
 				return EVictoryLossCheckResult::defeat(event.onFulfill, event.effect.toOtherMessage);
 		}
+	}
+
+	// Single Hero: the hero is the player's life - without a hero the player is defeated, even with towns left
+	if (getSettings().getBoolean(EGameSettings::HEROES_DEFEAT_ON_HERO_LOSS) && !map->battleOnly && p->getHeroes().empty())
+	{
+		return EVictoryLossCheckResult::defeat(
+			MetaString::createFromTextID("singlehero.defeat.self"),
+			MetaString::createFromTextID("singlehero.defeat.other"));
 	}
 
 	if (checkForStandardLoss(player))

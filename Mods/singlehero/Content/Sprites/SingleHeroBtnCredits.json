@@ -1,0 +1,21 @@
+{
+	"basepath": "singlehero/",
+	"images": [
+		{
+			"frame": 0,
+			"file": "sh_SingleHeroBtnCredits_0.png"
+		},
+		{
+			"frame": 1,
+			"file": "sh_SingleHeroBtnCredits_1.png"
+		},
+		{
+			"frame": 2,
+			"file": "sh_SingleHeroBtnCredits_2.png"
+		},
+		{
+			"frame": 3,
+			"file": "sh_SingleHeroBtnCredits_3.png"
+		}
+	]
+}

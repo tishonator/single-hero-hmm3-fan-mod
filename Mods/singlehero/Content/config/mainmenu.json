@@ -1,0 +1,59 @@
+{
+	// Single Hero main menu.
+	// Replaces VCMI's config/mainmenu.json while the mod is enabled.
+	// Images live in Content/Data (+ Data2x for HD), buttons in Content/Sprites. Art: single-hero/tools.
+
+	"backgroundAround" : "diboxbck",
+
+	"scenario-selection" :
+	{
+		"background" : ["gamselb0", "gamselb1"]
+	},
+
+	"loading" :
+	{
+		"background" : ["loadbar"],
+		"loadbar" : {
+			"name": ["loadprog"],
+			"x": 395, "y": 548, "size": 18, "amount": 20
+		}
+	},
+
+	"multiplayer" : ["mumap"],
+
+	"window":
+	{
+		"background" : ["SingleHeroMenuBackground"],
+
+		// Title, top left
+		"images":
+		[
+			{ "x": 16, "y": 10, "name": ["SingleHeroMenuTitle"] }
+		],
+
+		"items" :
+		[
+			{
+				"name" : "main",
+				"buttons":
+				[
+					{"x": 643, "y": 85,  "center" : true, "name":"SingleHeroBtnNew",     "shortcut" : "mainMenuNewGame",  "help": "singlehero.mainMenu.new",     "command": "start single"},
+					{"x": 643, "y": 195, "center" : true, "name":"SingleHeroBtnMulti",   "shortcut" : "mainMenuMultiplayer", "help": "singlehero.mainMenu.multi", "command": "start multi"},
+					{"x": 643, "y": 305, "center" : true, "name":"SingleHeroBtnLoad",    "shortcut" : "mainMenuLoadGame", "help": "singlehero.mainMenu.load",    "command": "to load"},
+					{"x": 643, "y": 415, "center" : true, "name":"SingleHeroBtnCredits", "shortcut" : "mainMenuCredits",  "help": "singlehero.mainMenu.credits", "command": "to credits"},
+					{"x": 643, "y": 525, "center" : true, "name":"SingleHeroBtnQuit",    "shortcut" : "mainMenuQuit",     "help": "singlehero.mainMenu.quit",    "command": "exit"}
+				]
+			},
+			{
+				"name" : "load",
+				"buttons":
+				[
+					{"x": 649, "y":  65, "center" : true, "name":"GTSINGL", "shortcut" : "mainMenuSingleplayer", "help": 10, "command": "load single"},
+					{"x": 649, "y": 180, "center" : true, "name":"GTMULTI", "shortcut" : "mainMenuMultiplayer", "help": 12, "command": "load multi"},
+					{"x": 645, "y": 517, "center" : true, "name":"GTBACK",  "shortcut" : "mainMenuBack", "help": 14, "command": "to main"}
+				],
+				"images": [ {"x": 114, "y": 312, "name":"LOADGAME"} ]
+			}
+		]
+	}
+}

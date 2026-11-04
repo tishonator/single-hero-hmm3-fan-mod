@@ -19,6 +19,7 @@
 #include "queries/MapQueries.h"
 
 #include "../lib/CPlayerState.h"
+#include "../lib/IGameSettings.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/gameState/CGameState.h"
@@ -53,6 +54,14 @@ void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.hid);
 	gh.throwIfPlayerNotActive(connection, &pack);
+
+	// Single Hero: dismissing the only hero would end the game - refuse it
+	if(gh.gameInfo().getSettings().getBoolean(EGameSettings::HEROES_DEFEAT_ON_HERO_LOSS) && gh.gameInfo().getHeroCount(pack.player, true) <= 1)
+	{
+		result = !gh.complain("Single Hero: you cannot dismiss your only hero!");
+		return;
+	}
+
 	result = gh.removeObject(gh.gameInfo().getObj(pack.hid), pack.player);
 }
 

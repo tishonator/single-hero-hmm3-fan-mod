@@ -1,0 +1,12 @@
+{
+	"singlehero.mainMenu.new" : "New Game: any scenario or a random map, where every player has exactly one hero. If your hero falls, you lose.",
+	"singlehero.mainMenu.multi" : "Multiplayer: hotseat on this computer, or play over the network. Same rules: one hero each.",
+	"singlehero.mainMenu.load" : "Load a saved game.",
+	"singlehero.mainMenu.credits" : "Show the credits.",
+	"singlehero.mainMenu.quit" : "Quit Single Hero.",
+
+	"singlehero.defeat.self" : "Your hero has fallen. In a Single Hero game your hero is your kingdom - you have been defeated.",
+	"singlehero.defeat.other" : "%s has lost their hero and is out of the game.",
+
+	"singlehero.credits.text" : "{- Single Hero -}\n{A HoMM3 Fan Mod}\n\n\n{Created By:}\nTihomir Ivanov\n\n\n{YouTube Channel:}\nTishGamer\nyoutube.com/\n@TishGamer\n\n\n{Official Mod Page:}\ngithub.com/tishonator/\nsingle-hero-\nhmm3-fan-mod\n\n\n{One hero. One life.}\nInspired by the Single\nHero mode of Heroes of\nMight and Magic:\nOlden Era.\n\n\n{Spread the word!}\nShare Single Hero\nwith your friends and\nfellow Heroes fans\nand leave a star\non GitHub.\n\nFound a bug or have\nan idea? Tell us on\nthe GitHub page.\n\n\n{Thank you for playing!}"
+}
