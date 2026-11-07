@@ -22,6 +22,7 @@
   - [Hand-made maps](#hand-made-maps)
 - [How it compares to Olden Era](#how-it-compares-to-olden-era)
 - [Tips](#tips)
+- [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Building from source](#building-from-source)
 - [How it works in VCMI](#how-it-works-in-vcmi)
@@ -41,6 +42,8 @@
 | **Everything else is HoMM3** | Towns, creatures, spells, artifacts, the AI, hotseat and online multiplayer all work as usual. |
 
 The **main menu** has *New Game*, *Multiplayer* (hotseat, LAN or online), *Load Game*, *Credits* and *Quit*.
+
+![Retreating from a battle ends the game: "Your hero has fallen. In a Single Hero game your hero is your kingdom - you have been defeated."](single-hero/screenshots/defeat.png)
 
 ### Hand-made maps
 
@@ -73,6 +76,14 @@ Hand-made scenarios often give a player several heroes at the start, or only tow
 - **Your army must travel with you.** Nobody can carry new troops from your towns to the front. Plan your route back home for weekly recruits, or use Town Portal.
 - **Logistics, Pathfinding and Wisdom matter more than ever.** Your one hero has to do everything.
 - **Winning with only summoned creatures left still loses the hero**, as in classic HoMM3. Keep at least one real stack alive.
+
+## Screenshots
+
+| | |
+| --- | --- |
+| ![Choose a scenario](single-hero/screenshots/choose-scenario.png) **Play any hand-made scenario** | ![Random map setup](single-hero/screenshots/random-map.png) **Or generate a random map** |
+| ![Adventure map with one hero](single-hero/screenshots/adventure-map.png) **One hero in your hero list** | ![Tavern with the hire button disabled](single-hero/screenshots/tavern.png) **The tavern can't hire a second hero** |
+| ![Battle](single-hero/screenshots/battle.png) **Every battle puts your kingdom at stake** | ![Defeat message](single-hero/screenshots/defeat.png) **Retreat or die, and the game is over** |
 
 ---
 
@@ -151,6 +162,13 @@ The `Mods/singlehero` folder is installed with the engine automatically.
   git push origin v0.1.0
   ```
 - If one platform fails, the release is still published with the others. **Re-run failed jobs** adds the missing files to the same release.
+
+**Before you commit,** run the checks of the CI job *Validate Code* (line endings, JSON, Markdown) on exactly what would be committed. Needs Git Bash (or any Bash), Python 3 with `jstyleson`, and Node.js:
+
+```sh
+pip install jstyleson
+bash single-hero/tools/validate.sh    # ends with "ALL CHECKS PASSED"
+```
 
 **The menu art** is original and drawn by scripts, with no pixels from the original game. To regenerate it (needs Python 3 and Pillow):
 

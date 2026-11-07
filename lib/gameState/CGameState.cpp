@@ -646,8 +646,11 @@ void CGameState::initSingleHeroes(vstd::RNG & randomGenerator)
 		return false;
 	};
 
-	for(const auto & [color, settings] : scenarioOps->playerInfos)
+	for(const auto & playerSettingsPair : scenarioOps->playerInfos)
 	{
+		// plain references, not a structured binding: clang before 16 can't capture bindings in the lambdas below
+		const PlayerColor & color = playerSettingsPair.first;
+		const PlayerSettings & settings = playerSettingsPair.second;
 		if(!color.isValidPlayer())
 			continue;
 
